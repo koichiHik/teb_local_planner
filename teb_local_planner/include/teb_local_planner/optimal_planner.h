@@ -1,3 +1,4 @@
+// clang-format off
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -734,3 +735,4 @@ typedef std::vector< TebOptimalPlannerPtr > TebOptPlannerContainer;
 } // namespace teb_local_planner
 
 #endif /* OPTIMAL_PLANNER_H_ */
+// clang-format on
