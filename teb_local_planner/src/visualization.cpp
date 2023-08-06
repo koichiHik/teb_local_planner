@@ -78,6 +78,35 @@ void TebVisualization::publishLocalPlan(
 }
 
 void TebVisualization::publishLocalPlanAndPoses(
+    const TimedElasticBand& teb, const double base_height) const {
+  if (printErrorWhenNotInitialized()) return;
+
+  // create path msg
+  nav_msgs::msg::Path teb_path;
+  teb_path.header.frame_id = cfg_->map_frame;
+  teb_path.header.stamp = nh_->now();
+
+  // create pose_array (along trajectory)
+  geometry_msgs::msg::PoseArray teb_poses;
+  teb_poses.header.frame_id = teb_path.header.frame_id;
+  teb_poses.header.stamp = teb_path.header.stamp;
+
+  // fill path msgs with teb configurations
+  for (int i = 0; i < teb.sizePoses(); i++) {
+    geometry_msgs::msg::PoseStamped pose;
+
+    pose.header.frame_id = teb_path.header.frame_id;
+    pose.header.stamp = teb_path.header.stamp;
+    teb.Pose(i).toPoseMsg(pose.pose);
+    pose.pose.position.z = base_height;
+    teb_path.poses.push_back(pose);
+    teb_poses.poses.push_back(pose.pose);
+  }
+  local_plan_pub_->publish(teb_path);
+  teb_poses_pub_->publish(teb_poses);
+}
+
+void TebVisualization::publishLocalPlanAndPoses(
     const TimedElasticBand& teb) const {
   if (printErrorWhenNotInitialized()) return;
 

@@ -48,7 +48,8 @@ HomotopyClassPlanner::HomotopyClassPlanner()
       via_points_(NULL),
       robot_model_(new PointRobotFootprint()),
       initial_plan_(NULL),
-      initialized_(false) {}
+      initialized_(false),
+      base_height_(0.0) {}
 
 HomotopyClassPlanner::HomotopyClassPlanner(
     nav2_util::LifecycleNode::SharedPtr node, const TebConfig& cfg,
@@ -86,6 +87,8 @@ void HomotopyClassPlanner::initialize(nav2_util::LifecycleNode::SharedPtr node,
 
   initialized_ = true;
 
+  base_height_ = 0.0;
+
   setVisualization(visual);
 }
 
@@ -97,8 +100,10 @@ void HomotopyClassPlanner::setVisualization(
 bool HomotopyClassPlanner::plan(
     const std::vector<geometry_msgs::msg::PoseStamped>& initial_plan,
     const geometry_msgs::msg::Twist* start_vel, bool free_goal_vel) {
-  TEB_ASSERT_MSG(initialized_, "Call initialize() first.");
+  // X. Extract base height.
+  base_height_ = initial_plan.front().pose.position.z;
 
+  TEB_ASSERT_MSG(initialized_, "Call initialize() first.");
   // store initial plan for further initializations (must be valid for the
   // lifetime of this object or clearPlanner() is called!)
   initial_plan_ = &initial_plan;
@@ -171,7 +176,7 @@ void HomotopyClassPlanner::visualize() {
     // Visualize best teb and feedback message if desired
     TebOptimalPlannerConstPtr best_teb = bestTeb();
     if (best_teb) {
-      visualization_->publishLocalPlanAndPoses(best_teb->teb());
+      visualization_->publishLocalPlanAndPoses(best_teb->teb(), base_height_);
 
       if (best_teb->teb().sizePoses() >
           0)  // TODO maybe store current pose (start) within plan method as

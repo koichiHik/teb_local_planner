@@ -103,7 +103,16 @@ public:
    * @param local_plan Pose array describing the local plan
    */
   void publishLocalPlan(const std::vector<geometry_msgs::msg::PoseStamped>& local_plan) const;
-  
+
+  /**
+   * @brief Publish Timed_Elastic_Band related stuff (local plan, pose sequence).
+   * 
+   * Given a Timed_Elastic_Band instance, publish the local plan to  \e ../../local_plan 
+   * and the pose sequence to  \e ../../teb_poses.
+   * @param teb const reference to a Timed_Elastic_Band
+   */
+  void publishLocalPlanAndPoses(const TimedElasticBand& teb, const double base_height) const;
+
   /**
    * @brief Publish Timed_Elastic_Band related stuff (local plan, pose sequence).
    * 

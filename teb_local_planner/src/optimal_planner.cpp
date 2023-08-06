@@ -68,7 +68,8 @@ TebOptimalPlanner::TebOptimalPlanner()
       cost_(HUGE_VAL),
       prefer_rotdir_(RotType::none),
       initialized_(false),
-      optimized_(false) {}
+      optimized_(false),
+      base_height_(0.0) {}
 
 TebOptimalPlanner::TebOptimalPlanner(nav2_util::LifecycleNode::SharedPtr node,
                                      const TebConfig& cfg,
@@ -113,6 +114,8 @@ void TebOptimalPlanner::initialize(nav2_util::LifecycleNode::SharedPtr node,
   vel_goal_.second.angular.z = 0;
   initialized_ = true;
 
+  base_height_ = 0.0;
+
   setVisualization(visual);
 }
 
@@ -124,7 +127,7 @@ void TebOptimalPlanner::setVisualization(
 void TebOptimalPlanner::visualize() {
   if (!visualization_) return;
 
-  visualization_->publishLocalPlanAndPoses(teb_);
+  visualization_->publishLocalPlanAndPoses(teb_, base_height_);
 
   if (teb_.sizePoses() > 0)
     visualization_->publishRobotFootprintModel(teb_.Pose(0),
@@ -305,6 +308,9 @@ void TebOptimalPlanner::setVelocityGoal(
 bool TebOptimalPlanner::plan(
     const std::vector<geometry_msgs::msg::PoseStamped>& initial_plan,
     const geometry_msgs::msg::Twist* start_vel, bool free_goal_vel) {
+  // X. Extract base height.
+  base_height_ = initial_plan.front().pose.position.z;
+
   TEB_ASSERT_MSG(initialized_, "Call initialize() first.");
   if (!teb_.isInit()) {
     teb_.initTrajectoryToGoal(

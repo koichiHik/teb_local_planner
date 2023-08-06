@@ -289,6 +289,9 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
   robot_pose.header = pose.header;
   robot_pose_.toPoseMsg(robot_pose.pose);
 
+  // X. For visualization purpose, keep height.
+  robot_pose.pose.position.z = pose.pose.position.z;
+
   // Get robot velocity
   robot_vel_ = velocity;
 

@@ -572,7 +572,7 @@ protected:
 
   TebOptimalPlannerPtr last_best_teb_;  //!< Points to the plan used in the previous control cycle
 
-
+  double base_height_;
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
