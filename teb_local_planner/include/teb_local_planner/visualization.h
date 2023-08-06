@@ -1,3 +1,4 @@
+// clang-format off
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -270,3 +271,4 @@ typedef std::shared_ptr<const TebVisualization> TebVisualizationConstPtr;
 #include "teb_local_planner/visualization.hpp"
 
 #endif /* VISUALIZATION_H_ */
+// clang-format on
