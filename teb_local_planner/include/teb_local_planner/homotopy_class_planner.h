@@ -1,3 +1,4 @@
+// clang-format off
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -589,3 +590,4 @@ typedef std::shared_ptr<HomotopyClassPlanner> HomotopyClassPlannerPtr;
 #include "teb_local_planner/homotopy_class_planner.hpp"
 
 #endif /* HOMOTOPY_CLASS_PLANNER_H_ */
+// clang-format on
