@@ -1,3 +1,4 @@
+// clang-format off
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -146,7 +147,8 @@ public:
   
   //@}
   
-  
+  virtual bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) = 0;
+
   /**
    * @brief Reset the planner.
    */
@@ -216,3 +218,4 @@ typedef std::shared_ptr<PlannerInterface> PlannerInterfacePtr;
 } // namespace teb_local_planner
 
 #endif /* PLANNER_INTERFACE_H__ */
+// clang-format on

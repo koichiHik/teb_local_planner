@@ -1,3 +1,4 @@
+// clang-format off
 /*********************************************************************
  *
  * Software License Agreement (BSD License)
@@ -140,6 +141,12 @@ public:
     const geometry_msgs::msg::Twist &velocity,
       nav2_core::GoalChecker * goal_checker);
   
+  bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) {
+    std::lock_guard<std::mutex> lock(sequence_mtx_);
+    pose_sequence = pose_sequence_;
+    time_diff_sequence = time_diff_sequence_;
+    return true;
+  }
     
   /** @name Public utility functions/methods */
   //@{
@@ -412,6 +419,11 @@ private:
   bool initialized_; //!< Keeps track about the correct initialization of this class
   std::string name_; //!< Name of plugin ID
 
+  // Storage for computed path.
+  std::mutex sequence_mtx_;
+  std::vector<PoseSE2> pose_sequence_;
+  std::vector<double> time_diff_sequence_;
+
 protected:
   // Dynamic parameters handler
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr dyn_params_handler;
@@ -422,5 +434,4 @@ public:
 }; // end namespace teb_local_planner
 
 #endif // TEB_LOCAL_PLANNER_ROS_H_
-
-
+// clang-format on

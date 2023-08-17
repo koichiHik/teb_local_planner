@@ -69,7 +69,10 @@ TebOptimalPlanner::TebOptimalPlanner()
       prefer_rotdir_(RotType::none),
       initialized_(false),
       optimized_(false),
-      base_height_(0.0) {}
+      base_height_(0.0),
+      sequence_mtx_{},
+      pose_sequence_{},
+      time_sequence_{} {}
 
 TebOptimalPlanner::TebOptimalPlanner(nav2_util::LifecycleNode::SharedPtr node,
                                      const TebConfig& cfg,
@@ -351,6 +354,24 @@ bool TebOptimalPlanner::plan(
         true;  // we just reactivate and use the previously set velocity (should
                // be zero if nothing was modified)
 
+  bool ret = optimizeTEB(cfg_->optim.no_inner_iterations,
+                         cfg_->optim.no_outer_iterations);
+
+  std::vector<PoseSE2> new_pose_sequence;
+  for (const auto& p : teb_.poses()) {
+    new_pose_sequence.push_back(p->pose());
+  }
+  std::vector<double> new_time_sequence;
+  for (const auto& t : teb_.timediffs()) {
+    new_time_sequence.push_back(t->dt());
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(sequence_mtx_);
+    pose_sequence_ = new_pose_sequence;
+    time_sequence_ = new_time_sequence;
+  }
+
   // now optimize
   return optimizeTEB(cfg_->optim.no_inner_iterations,
                      cfg_->optim.no_outer_iterations);
@@ -405,9 +426,26 @@ bool TebOptimalPlanner::plan(const PoseSE2& start, const PoseSE2& goal,
         true;  // we just reactivate and use the previously set velocity (should
                // be zero if nothing was modified)
 
+  bool ret = optimizeTEB(cfg_->optim.no_inner_iterations,
+                         cfg_->optim.no_outer_iterations, true);
+
+  std::vector<PoseSE2> new_pose_sequence;
+  for (const auto& p : teb_.poses()) {
+    new_pose_sequence.push_back(p->pose());
+  }
+  std::vector<double> new_time_sequence;
+  for (const auto& t : teb_.timediffs()) {
+    new_time_sequence.push_back(t->dt());
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(sequence_mtx_);
+    pose_sequence_ = new_pose_sequence;
+    time_sequence_ = new_time_sequence;
+  }
+
   // now optimize
-  return optimizeTEB(cfg_->optim.no_inner_iterations,
-                     cfg_->optim.no_outer_iterations, true);
+  return ret;
 }
 
 bool TebOptimalPlanner::buildGraph(double weight_multiplier) {

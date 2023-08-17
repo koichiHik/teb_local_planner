@@ -83,6 +83,7 @@
 #include <tf2/transform_datatypes.h>
 
 #include <limits.h>
+#include <mutex>
 
 namespace teb_local_planner
 {
@@ -220,6 +221,12 @@ public:
    */
   virtual bool getVelocityCommand(double& vx, double& vy, double& omega, int look_ahead_poses) const;
   
+  virtual bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) {
+    std::lock_guard<std::mutex> lock(sequence_mtx_);
+    pose_sequence = pose_sequence_;
+    time_diff_sequence = time_sequence_;
+    return true;
+  }
   
   /**
    * @brief Optimize a previously initialized trajectory (actual TEB optimization loop).
@@ -722,6 +729,10 @@ protected:
   bool optimized_; //!< This variable is \c true as long as the last optimization has been completed successful
 
   double base_height_;
+
+  std::mutex sequence_mtx_;
+  std::vector<PoseSE2> pose_sequence_;
+  std::vector<double> time_sequence_;
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW    

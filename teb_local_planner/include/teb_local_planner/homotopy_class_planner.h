@@ -200,6 +200,10 @@ public:
    */
   virtual bool getVelocityCommand(double& vx, double& vy, double& omega, int look_ahead_poses) const;
 
+  virtual bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) {
+    return bestTeb()->getPlannedResult(pose_sequence, time_diff_sequence);
+  }
+
   /**
    * @brief Access current best trajectory candidate (that relates to the "best" homotopy class).
    *
