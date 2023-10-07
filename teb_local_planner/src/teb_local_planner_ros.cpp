@@ -251,13 +251,13 @@ void TebLocalPlannerROS::setPlan(const nav_msgs::msg::Path& orig_global_plan) {
     global_plan_.push_back(out_pose);
   }
 
-  // X. Clear planner everytime setPlan is called.
-  planner_->clearPlanner();
-  {
-    std::lock_guard<std::mutex> lock(sequence_mtx_);
-    pose_sequence_.clear();
-    time_diff_sequence_.clear();
-  }
+  // // X. Clear planner everytime setPlan is called.
+  // planner_->clearPlanner();
+  // {
+  //   std::lock_guard<std::mutex> lock(sequence_mtx_);
+  //   pose_sequence_.clear();
+  //   time_diff_sequence_.clear();
+  // }
 
   // we do not clear the local planner here, since setPlan is called frequently
   // whenever the global planner updates the plan. the local planner checks
