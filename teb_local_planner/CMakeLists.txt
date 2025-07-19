@@ -42,7 +42,7 @@ message(STATUS "System: ${CMAKE_SYSTEM}")
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake_modules)
 message(STATUS "${CMAKE_MODULE_PATH}")
 find_package(SUITESPARSE REQUIRED)
-find_package(G2O REQUIRED)
+find_package(g2o CONFIG REQUIRED)
 find_package(Boost REQUIRED)
 
 # Eigen3 FindScript Backward compatibility (ubuntu saucy)
@@ -57,8 +57,8 @@ elseif (EXISTS "FindEigen.cmake")
   e.g. by adding it to ${PROJECT_SOURCE_DIR}/cmake_modules.")
 endif (EXISTS "FindEigen3.cmake")
 
-set(EXTERNAL_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS} ${SUITESPARSE_INCLUDE_DIRS} ${G2O_INCLUDE_DIR})
-set(EXTERNAL_LIBS ${Boost_LIBRARIES} ${SUITESPARSE_LIBRARIES} ${G2O_LIBRARIES})
+set(EXTERNAL_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS} ${SUITESPARSE_INCLUDE_DIRS})
+set(EXTERNAL_LIBS ${Boost_LIBRARIES} ${SUITESPARSE_LIBRARIES} g2o::core g2o::stuff)
 
 ###########
 ## Build ##
