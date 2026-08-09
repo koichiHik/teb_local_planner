@@ -58,7 +58,11 @@ elseif (EXISTS "FindEigen.cmake")
 endif (EXISTS "FindEigen3.cmake")
 
 set(EXTERNAL_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS} ${SUITESPARSE_INCLUDE_DIRS})
-set(EXTERNAL_LIBS ${Boost_LIBRARIES} ${SUITESPARSE_LIBRARIES} g2o::core g2o::stuff)
+set(EXTERNAL_LIBS
+  ${Boost_LIBRARIES}
+  ${SUITESPARSE_LIBRARIES}
+  g2o::core
+  g2o::stuff)
 
 ###########
 ## Build ##
@@ -111,6 +115,11 @@ ament_target_dependencies(teb_local_planner
 )
 target_link_libraries(teb_local_planner
    ${EXTERNAL_LIBS}
+   # The CSparse symbols are referenced through g2o templates.  Keep this DSO
+   # even when the toolchain enables --as-needed by default.
+   "-Wl,--push-state,--no-as-needed"
+   g2o::solver_csparse
+   "-Wl,--pop-state"
 )
 
 target_compile_definitions(teb_local_planner PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
