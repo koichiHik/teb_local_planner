@@ -81,9 +81,7 @@ void HomotopyClassPlanner::initialize(nav2_util::LifecycleNode::SharedPtr node,
   std::random_device rd;
   random_.seed(rd());
 
-  // This is needed to prevent different time sources error
-  last_eq_class_switching_time_ =
-      rclcpp::Time(0, 0, node->get_clock()->get_clock_type());
+  has_last_eq_class_switching_time_ = false;
 
   initialized_ = true;
 
@@ -706,10 +704,12 @@ TebOptimalPlannerPtr HomotopyClassPlanner::selectBestTeb() {
 
   // check if we are allowed to change
   if (last_best_teb_ && best_teb_ != last_best_teb_) {
-    rclcpp::Time now = node_->now();
-    if ((now - last_eq_class_switching_time_).seconds() >
-        cfg_->hcp.switching_blocking_period) {
+    const auto now = std::chrono::steady_clock::now();
+    if (!has_last_eq_class_switching_time_ ||
+        std::chrono::duration<double>(now - last_eq_class_switching_time_).count() >
+            cfg_->hcp.switching_blocking_period) {
       last_eq_class_switching_time_ = now;
+      has_last_eq_class_switching_time_ = true;
     } else {
       RCLCPP_DEBUG(
           rclcpp::get_logger("teb_local_planner"),

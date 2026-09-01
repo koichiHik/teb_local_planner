@@ -43,6 +43,7 @@
 #include <math.h>
 
 #include <algorithm>
+#include <chrono>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -569,7 +570,8 @@ protected:
 
   std::shared_ptr<GraphSearchInterface> graph_search_;
 
-  rclcpp::Time last_eq_class_switching_time_; //!< Store the time at which the equivalence class changed recently
+  std::chrono::steady_clock::time_point last_eq_class_switching_time_; //!< Monotonic time of the recent equivalence-class change
+  bool has_last_eq_class_switching_time_{false};
 
   std::default_random_engine random_;
   bool initialized_; //!< Keeps track about the correct initialization of this class

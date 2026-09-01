@@ -44,6 +44,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <chrono>
+
 // Navigation2 local planner base class and utilities
 #include <nav2_core/controller.hpp>
 
@@ -405,9 +407,9 @@ private:
   PoseSE2 robot_pose_; //!< Store current robot pose
   PoseSE2 robot_goal_; //!< Store current robot goal
   geometry_msgs::msg::Twist robot_vel_; //!< Store current robot translational and angular velocity (vx, vy, omega)
-  rclcpp::Time time_last_infeasible_plan_; //!< Store at which time stamp the last infeasible plan was detected
+  std::chrono::steady_clock::time_point time_last_infeasible_plan_; //!< Monotonic time of the last infeasible plan
   int no_infeasible_plans_; //!< Store how many times in a row the planner failed to find a feasible plan.
-  rclcpp::Time time_last_oscillation_; //!< Store at which time stamp the last oscillation was detected
+  std::chrono::steady_clock::time_point time_last_oscillation_; //!< Monotonic time of the last oscillation
   RotType last_preferred_rotdir_; //!< Store recent preferred turning direction
   geometry_msgs::msg::Twist last_cmd_; //!< Store the last control command generated in computeVelocityCommands()
   

@@ -199,9 +199,9 @@ void TebLocalPlannerROS::initialize(nav2_util::LifecycleNode::SharedPtr node) {
     // set initialized flag
     initialized_ = true;
 
-    // This should be called since to prevent different time sources exception
-    time_last_infeasible_plan_ = clock_->now();
-    time_last_oscillation_ = clock_->now();
+    const auto steady_now = std::chrono::steady_clock::now();
+    time_last_infeasible_plan_ = steady_now;
+    time_last_oscillation_ = steady_now;
     RCLCPP_DEBUG(logger_, "teb_local_planner plugin initialized.");
   } else {
     RCLCPP_INFO(
@@ -403,7 +403,7 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
     planner_->clearPlanner();  // force reinitialization for next time
 
     ++no_infeasible_plans_;  // increase number of infeasible solutions in a row
-    time_last_infeasible_plan_ = clock_->now();
+    time_last_infeasible_plan_ = std::chrono::steady_clock::now();
     last_cmd_ = cmd_vel.twist;
 
     {
@@ -430,7 +430,7 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
                          "Resetting planner...");
 
     ++no_infeasible_plans_;  // increase number of infeasible solutions in a row
-    time_last_infeasible_plan_ = clock_->now();
+    time_last_infeasible_plan_ = std::chrono::steady_clock::now();
     last_cmd_ = cmd_vel.twist;
     {
       std::lock_guard<std::mutex> lock(sequence_mtx_);
@@ -470,7 +470,7 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
     planner_->clearPlanner();
 
     ++no_infeasible_plans_;  // increase number of infeasible solutions in a row
-    time_last_infeasible_plan_ = clock_->now();
+    time_last_infeasible_plan_ = std::chrono::steady_clock::now();
     last_cmd_ = cmd_vel.twist;
 
     {
@@ -490,7 +490,7 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
           cmd_vel.twist.angular.z, cfg_->trajectory.control_look_ahead_poses)) {
     planner_->clearPlanner();
     ++no_infeasible_plans_;  // increase number of infeasible solutions in a row
-    time_last_infeasible_plan_ = clock_->now();
+    time_last_infeasible_plan_ = std::chrono::steady_clock::now();
     last_cmd_ = cmd_vel.twist;
 
     {
@@ -527,7 +527,7 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
 
       ++no_infeasible_plans_;  // increase number of infeasible solutions in a
                                // row
-      time_last_infeasible_plan_ = clock_->now();
+      time_last_infeasible_plan_ = std::chrono::steady_clock::now();
 
       {
         std::lock_guard<std::mutex> lock(sequence_mtx_);
@@ -1073,7 +1073,7 @@ void TebLocalPlannerROS::validateFootprints(double opt_inscribed_radius,
 void TebLocalPlannerROS::configureBackupModes(
     std::vector<geometry_msgs::msg::PoseStamped>& transformed_plan,
     int& goal_idx) {
-  rclcpp::Time current_time = clock_->now();
+  const auto current_time = std::chrono::steady_clock::now();
 
   // reduced horizon backup mode
   if (cfg_->recovery.shrink_horizon_backup &&
@@ -1082,7 +1082,7 @@ void TebLocalPlannerROS::configureBackupModes(
                            // (because the orientation might change -> can
                            // introduce oscillations)
       (no_infeasible_plans_ > 0 ||
-       (current_time - time_last_infeasible_plan_).seconds() <
+       std::chrono::duration<double>(current_time - time_last_infeasible_plan_).count() <
            cfg_->recovery
                .shrink_horizon_min_duration))  // keep short horizon for at
                                                // least a few seconds
@@ -1139,7 +1139,7 @@ void TebLocalPlannerROS::configureBackupModes(
 
     bool oscillating = failure_detector_.isOscillating();
     bool recently_oscillated =
-        (clock_->now() - time_last_oscillation_).seconds() <
+        std::chrono::duration<double>(current_time - time_last_oscillation_).count() <
         cfg_->recovery
             .oscillation_recovery_min_duration;  // check if we have already
                                                  // detected an oscillation
@@ -1157,7 +1157,7 @@ void TebLocalPlannerROS::configureBackupModes(
                     "its local plan) detected. Activating recovery strategy "
                     "(prefer current turning direction during optimization).");
       }
-      time_last_oscillation_ = clock_->now();
+      time_last_oscillation_ = current_time;
       planner_->setPreferredTurningDir(last_preferred_rotdir_);
     } else if (!recently_oscillated &&
                last_preferred_rotdir_ !=
