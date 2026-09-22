@@ -1252,7 +1252,10 @@ void TebLocalPlannerROS::deactivate() {
 }
 void TebLocalPlannerROS::cleanup() {
   visualization_->on_cleanup();
-  costmap_converter_->stopWorker();
+  // The converter is optional (an empty plugin name uses raw costmap cells).
+  if (costmap_converter_) {
+    costmap_converter_->stopWorker();
+  }
 
   return;
 }
