@@ -160,6 +160,15 @@ pluginlib_export_plugin_description_file(nav2_core teb_local_planner_plugin.xml)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(planned_result_export_test
+    test/planned_result_export_test.cpp
+    TIMEOUT 60)
+  if(TARGET planned_result_export_test)
+    target_link_libraries(planned_result_export_test teb_local_planner)
+    ament_target_dependencies(planned_result_export_test
+      geometry_msgs nav2_util rclcpp)
+  endif()
+
   #ament_add_gtest(homotopy_class_planner_test
   #    test/homotopy_class_planner_test.cpp
   #)

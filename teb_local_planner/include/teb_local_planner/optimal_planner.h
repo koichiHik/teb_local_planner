@@ -223,6 +223,11 @@ public:
   
   virtual bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) {
     std::lock_guard<std::mutex> lock(sequence_mtx_);
+    if (pose_sequence_.empty() || time_sequence_.size() + 1U != pose_sequence_.size()) {
+      pose_sequence.clear();
+      time_diff_sequence.clear();
+      return false;
+    }
     pose_sequence = pose_sequence_;
     time_diff_sequence = time_sequence_;
     return true;
@@ -356,6 +361,7 @@ public:
    */
   virtual void clearPlanner() 
   {
+    updatePlannedResult(false);
     clearGraph();
     teb_.clearTimedElasticBand();
   }
@@ -540,6 +546,18 @@ public:
   //@}
   
 protected:
+
+  /**
+   * @brief Atomically publish or invalidate the safety-checkable trajectory.
+   *
+   * A successful optimization publishes the exact final TimedElasticBand.
+   * Failed or incomplete optimization invalidates any result from an older
+   * planning cycle.
+   * @param optimization_succeeded Whether the current optimization succeeded.
+   * @return true if a complete pose/time sequence was published.
+   */
+  bool updatePlannedResult(bool optimization_succeeded);
+
   
   /** @name Hyper-Graph creation and optimization */
   //@{

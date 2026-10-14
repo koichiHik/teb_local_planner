@@ -543,7 +543,10 @@ geometry_msgs::msg::TwistStamped TebLocalPlannerROS::computeVelocityCommands(
 
   {
     std::lock_guard<std::mutex> lock(sequence_mtx_);
-    planner_->getPlannedResult(pose_sequence_, time_diff_sequence_);
+    if (!planner_->getPlannedResult(pose_sequence_, time_diff_sequence_)) {
+      pose_sequence_.clear();
+      time_diff_sequence_.clear();
+    }
   }
 
   // a feasible solution should be found, reset counter

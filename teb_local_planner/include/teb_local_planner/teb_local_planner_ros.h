@@ -145,6 +145,11 @@ public:
   
   bool getPlannedResult(std::vector<PoseSE2> &pose_sequence, std::vector<double> &time_diff_sequence) {
     std::lock_guard<std::mutex> lock(sequence_mtx_);
+    if (pose_sequence_.empty() || time_diff_sequence_.size() + 1U != pose_sequence_.size()) {
+      pose_sequence.clear();
+      time_diff_sequence.clear();
+      return false;
+    }
     pose_sequence = pose_sequence_;
     time_diff_sequence = time_diff_sequence_;
     return true;
